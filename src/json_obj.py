@@ -22,10 +22,6 @@ class json_obj:
         with open('IMG_0663.jpg.json') as f:
             data = json.load(f)
 
-        # print(data)
-        # for i in data:
-        #    print(i, data[i])
-
         # objects tag
         objects = json.loads(str(data['objects'])[1:-1].replace("'", "\""))
 
@@ -37,5 +33,13 @@ class json_obj:
             keypoint = json.loads(str(nodes[node]).replace("'", "\""))['loc']
             keypoint.append(1)
             self.keypoints.extend(keypoint)
+    def check_iscrowd(self):
+        with open('IMG_0663.jpg.json') as f:
+            data = json.load(f)
 
+        # objects tag
+        objects = json.loads(str(data['objects'])[1:-1].replace("'", "\""))
+
+
+    def check_crowd(self):
 
