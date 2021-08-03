@@ -1,7 +1,9 @@
 import json
 import os
 
-with open('data/IMG_0663.jpg.json') as f:
+filepath = os.path.join(os.path.dirname(os.getcwd()) , 'data/IMG_0663.jpg.json')
+print(filepath)
+with open(filepath) as f:
     data = json.load(f)
 print(type(data))
 print(os.path.abspath(os.curdir))
