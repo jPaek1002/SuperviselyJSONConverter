@@ -1,11 +1,11 @@
 import json
+import os
 
-with open('IMG_0663.jpg.json') as f:
-  data = json.load(f)
-
-#print(data)
-#for i in data:
-#    print(i, data[i])
+with open('data/IMG_0663.jpg.json') as f:
+    data = json.load(f)
+print(type(data))
+print(os.path.abspath(os.curdir))
+print(data)
 
 #objects tag
 objects = json.loads(str(data['objects'])[1:-1].replace("'","\""))

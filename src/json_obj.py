@@ -39,7 +39,3 @@ class json_obj:
 
         # objects tag
         objects = json.loads(str(data['objects'])[1:-1].replace("'", "\""))
-
-
-    def check_crowd(self):
-
