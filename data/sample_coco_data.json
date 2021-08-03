@@ -1,0 +1,46 @@
+{
+  "annotation": {
+    "keypoints": [
+      [
+        20,
+        40,
+        1
+      ],
+      [
+        40,
+        30,
+        1
+      ],
+      [
+        60,
+        20,
+        1
+      ]
+    ],
+    "num_keypoints": 3,
+    "id": 123456,
+    "image_id": 654321,
+    "category_id": 16,
+    "segmentation": "RLE",
+    "area": 4000,
+    "bbox": [
+      30,
+      30,
+      30,
+      20
+    ],
+    "iscrowd": 0
+  },
+
+  "categories": [
+    {
+      "keypoints": [
+        "16"
+      ],
+      "skeleton": [],
+      "id": 69,
+      "name": "joe",
+      "supercategory": "mama"
+    }
+  ]
+}
