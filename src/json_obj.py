@@ -9,17 +9,25 @@ class json_obj:
                        'left_shoulder','right_shoulder','left_elbow','right_elbow','left_wrist','right_wrist',
                        'left_hip','right_hip','left_knee','right_knee','left_ankle','right_ankle']
         self.iscrowd = False
+        self.dimensions = []
 
+    def get_json(self):
+        with open(filename) as f:
+            return json.load(f)
 
-    def load_file(self):
+    def supervisely_load(self):
+        data = get_json(self)
 
-    def coco_to_supervisely(self):
-        supervisely_json = {}
 
     def supervisely_to_coco(self):
         coco_json = {}
 
-    def supervisely_getkeywords(self):
+
+    def supervisely_getobjects(self):
+        data = self.get_json()
+        return json.loads(str(data['objects'])[1:-1].replace("'", "\""))
+
+    def supervisely_getkeypoints(self):
         # objects tag
         objects = self.supervisely_getobjects()
 
@@ -32,11 +40,14 @@ class json_obj:
             keypoint.append(1)
             self.keypoints.extend(keypoint)
 
-    def check_iscrowd(self):
+    def supervisely_check_iscrowd(self):
         # objects tag
         return len(self.supervisely_getobjects()['objects'])>1
 
-    def supervisely_getobjects(self):
-        with open(filename) as f:
-            data = json.load(f)
-        return json.loads(str(data['objects'])[1:-1].replace("'", "\""))
+
+
+    def coco_load(self):
+        return
+
+    def coco_to_supervisely(self):
+        supervisely_json = {}
