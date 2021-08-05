@@ -14,32 +14,14 @@ class json_obj:
         self.iscrowd = False
         self.dimensions = {"height": 0, "width": 0}
 
-    def get_json(self):
-        with open(self.filepath) as f:
-            return json.load(f)
-
     def supervisely_load(self):
-        data = self.get_json()
+        with open(self.filepath) as f:
+            data = json.load(f)
+
         self.dimensions = data["size"]
-        self.supervisely_setkeypoints()
-        self.iscrowd = self.supervisely_check_iscrowd()
-        return self.dimensions
 
-#this function is for multiple supervisely jsons, do after
-    def supervisely_loadjson(self):
-        # Get input image file names.
-        filenames = []
-
-    def supervisely_to_coco(self):
-        coco_json = {}
-
-    def supervisely_getobjects(self):
-        data = self.get_json()
-        return json.loads(str(data['objects'])[1:-1].replace("'", "\""))
-
-    def supervisely_setkeypoints(self):
-        # objects tag
-        objects = self.supervisely_getobjects()
+        # set the keypoints
+        objects = json.loads(str(data['objects'])[1:-1].replace("'", "\""))
 
         # label object
         nodes = json.loads(str(objects[list(objects)[9]]).replace("'", "\""))
@@ -50,9 +32,23 @@ class json_obj:
             keypoint.append(1)
             self.keypoints.extend(keypoint)
 
-    def supervisely_check_iscrowd(self):
-        # objects tag
-        return len(self.supervisely_getobjects()['objects']) > 1
+        self.iscrowd = len(objects) > 1
+        return self.keypoints
+
+    # this function is for multiple supervisely jsons, do after
+    def supervisely_loadjson(self):
+        # Get input file names.
+        filenames = []
+
+    def supervisely_to_coco(self):
+        now = date.now()
+        coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
+        info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
+                "contributor": "MindsLabAI", "date_created": now.strftime("%Y/%m/%d")}
+        img = [{"license": 1, "file_name": self.filename, "height": self.dimensions["height"],
+                "width": self.dimensions["width"], "date_captured": now.strftime("%Y/%m/%d %H:%M:%S"), "id": 000000}]
+        ann = [{"segmentation": [], "num_keypoints": 17, "area": 0, "iscrowd": self.iscrowd,
+                "keypoints": self.keypoints,"image_id": 000000, "bbox": [0, 0, 0, 0], "category_id": 1, "id": 201376}]
 
     def coco_load(self):
         return
