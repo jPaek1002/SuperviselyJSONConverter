@@ -18,22 +18,19 @@ class json_obj:
         with open(self.filepath) as f:
             data = json.load(f)
 
-        self.dimensions = data["size"]
+        self.dimensions = data['size']
 
+        objects = data["objects"]
         # set the keypoints
-        objects = json.loads(str(data['objects'])[1:-1].replace("'", "\""))
-
-        # label object
-        nodes = json.loads(str(objects[list(objects)[9]]).replace("'", "\""))
+        nodes = objects[0]["nodes"]
 
         # each node will have an id and a location, create keypoint list
         for node in nodes:
-            keypoint = json.loads(str(nodes[node]).replace("'", "\""))['loc']
+            keypoint = nodes[node]["loc"]
             keypoint.append(1)
             self.keypoints.extend(keypoint)
 
         self.iscrowd = len(objects) > 1
-        return self.keypoints
 
     # this function is for multiple supervisely jsons, do after
     def supervisely_loadjson(self):
@@ -48,15 +45,43 @@ class json_obj:
         img = [{"license": 1, "file_name": self.filename, "height": self.dimensions["height"],
                 "width": self.dimensions["width"], "date_captured": now.strftime("%Y/%m/%d %H:%M:%S"), "id": 000000}]
         ann = [{"segmentation": [], "num_keypoints": 17, "area": 0, "iscrowd": self.iscrowd,
-                "keypoints": self.keypoints,"image_id": 000000, "bbox": [0, 0, 0, 0], "category_id": 1, "id": 201376}]
+                "keypoints": self.keypoints, "image_id": 000000, "bbox": [0, 0, 0, 0], "category_id": 1, "id": 201376}]
         coco_json["info"] = info
         coco_json["images"] = img
         coco_json["annotations"] = ann
         json_string = json.dumps(coco_json)
         coco = open("coco.json", "w")
         coco.write(json_string)
+
     def coco_load(self):
-        return
+        with open(self.filepath) as f:
+            data = json.load(f)
+
+        dim = data["images"][0]
+        self.dimensions["height"] = dim["height"]
+        self.dimensions["width"] = dim["width"]
+
+        kpoints = data["annotations"][0]["keypoints"]
+        count = 1
+        for i in kpoints:
+            if (count % 3 != 0):
+                self.keypoints.append(i)
+            count += 1
+
+        self.iscrowd = data["annotations"][0]["iscrowd"]
 
     def coco_to_supervisely(self):
-        supervisely_json = {}
+        now = datetime.now()
+        supervisely_json = {"description": "", "tags": [], "size": {}, "objects": []}
+        supervisely_json["size"] = self.dimensions
+        objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
+                    "labelerLogin": "MindsLabAI", "createdAt": now.strftime("%Y/%m/%d %H:%M:%S"),
+                    "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "Pose", "nodes": {}}]
+        nodes = objects[0]["nodes"]
+        for i in range(0,len(self.keypoints),2):
+            nodes[str(i / 2)] = {"loc": [self.keypoints[i], self.keypoints[i+1]]}
+            
+        supervisely_json["objects"] = objects
+        json_string = json.dumps(supervisely_json)
+        sv = open("sv.json", "w")
+        sv.write(json_string)

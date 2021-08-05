@@ -3,6 +3,7 @@ import json
 import os
 
 if __name__ == "__main__":
-    test = json_obj("IMG_0663.jpg.json")
-    test.supervisely_to_coco()
+    test = json_obj("coco.json")
+    test.coco_load()
+    test.coco_to_supervisely()
 
