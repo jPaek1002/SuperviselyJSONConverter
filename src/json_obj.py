@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date
+from datetime import datetime
 
 
 class json_obj:
@@ -41,7 +41,7 @@ class json_obj:
         filenames = []
 
     def supervisely_to_coco(self):
-        now = date.now()
+        now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
         info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
                 "contributor": "MindsLabAI", "date_created": now.strftime("%Y/%m/%d")}
@@ -49,7 +49,12 @@ class json_obj:
                 "width": self.dimensions["width"], "date_captured": now.strftime("%Y/%m/%d %H:%M:%S"), "id": 000000}]
         ann = [{"segmentation": [], "num_keypoints": 17, "area": 0, "iscrowd": self.iscrowd,
                 "keypoints": self.keypoints,"image_id": 000000, "bbox": [0, 0, 0, 0], "category_id": 1, "id": 201376}]
-
+        coco_json["info"] = info
+        coco_json["images"] = img
+        coco_json["annotations"] = ann
+        json_string = json.dumps(coco_json)
+        coco = open("coco.json", "w")
+        coco.write(json_string)
     def coco_load(self):
         return
 
