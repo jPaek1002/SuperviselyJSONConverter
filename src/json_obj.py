@@ -14,6 +14,7 @@ class json_obj:
         self.iscrowd = False
         self.dimensions = {"height": 0, "width": 0}
 
+    # loads the file and assigns fields to values based on supervisely style json file
     def supervisely_load(self):
         with open(self.filepath) as f:
             data = json.load(f)
@@ -32,11 +33,14 @@ class json_obj:
 
         self.iscrowd = len(objects) > 1
 
-    # this function is for multiple supervisely jsons, do after
+    # this function is for multiple supervisely jsons, for later
     def supervisely_loadjson(self):
         # Get input file names.
         filenames = []
 
+    # converts supervisely json format to coco format
+    # only converts keypoints, size, and iscrowd
+    # other values are constant
     def supervisely_to_coco(self):
         now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
@@ -53,6 +57,7 @@ class json_obj:
         coco = open("coco.json", "w")
         coco.write(json_string)
 
+    # loads the file and assigns fields to values based on coco-style json file
     def coco_load(self):
         with open(self.filepath) as f:
             data = json.load(f)
@@ -64,23 +69,25 @@ class json_obj:
         kpoints = data["annotations"][0]["keypoints"]
         count = 1
         for i in kpoints:
-            if (count % 3 != 0):
+            if count % 3 != 0:
                 self.keypoints.append(i)
             count += 1
 
         self.iscrowd = data["annotations"][0]["iscrowd"]
 
+    # converts supervisely json format to coco format
+    # only converts keypoints and size
+    # other values are constant
     def coco_to_supervisely(self):
         now = datetime.now()
-        supervisely_json = {"description": "", "tags": [], "size": {}, "objects": []}
-        supervisely_json["size"] = self.dimensions
+        supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
         objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
                     "labelerLogin": "MindsLabAI", "createdAt": now.strftime("%Y/%m/%d %H:%M:%S"),
                     "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "Pose", "nodes": {}}]
         nodes = objects[0]["nodes"]
-        for i in range(0,len(self.keypoints),2):
-            nodes[str(i / 2)] = {"loc": [self.keypoints[i], self.keypoints[i+1]]}
-            
+        for i in range(0, len(self.keypoints), 2):
+            nodes[str(i / 2)] = {"loc": [self.keypoints[i], self.keypoints[i + 1]]}
+
         supervisely_json["objects"] = objects
         json_string = json.dumps(supervisely_json)
         sv = open("sv.json", "w")
