@@ -41,7 +41,7 @@ class json_obj:
     # converts supervisely json format to coco format
     # only converts keypoints, size, and iscrowd
     # other values are constant
-    def supervisely_to_coco(self):
+    def supervisely_to_coco(self, out_name="coco.json"):
         now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
         info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
@@ -54,7 +54,7 @@ class json_obj:
         coco_json["images"] = img
         coco_json["annotations"] = ann
         json_string = json.dumps(coco_json)
-        coco = open("coco.json", "w")
+        coco = open(out_name, "w")
         coco.write(json_string)
 
     # loads the file and assigns fields to values based on coco-style json file
@@ -78,7 +78,7 @@ class json_obj:
     # converts supervisely json format to coco format
     # only converts keypoints and size
     # other values are constant
-    def coco_to_supervisely(self):
+    def coco_to_supervisely(self, out_name="sv.json"):
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
         objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
@@ -90,5 +90,5 @@ class json_obj:
 
         supervisely_json["objects"] = objects
         json_string = json.dumps(supervisely_json)
-        sv = open("sv.json", "w")
+        sv = open(out_name, "w")
         sv.write(json_string)
