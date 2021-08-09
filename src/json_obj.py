@@ -75,7 +75,7 @@ class json_obj:
 
         self.iscrowd = data["annotations"][0]["iscrowd"]
 
-    # converts supervisely json format to coco format
+    # converts coco format to supervisely json format
     # only converts keypoints and size
     # other values are constant
     def coco_to_supervisely(self, out_name="sv.json"):
