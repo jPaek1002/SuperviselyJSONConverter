@@ -15,7 +15,6 @@ class json_obj:
         self.iscrowd = False
         self.dimensions = {"height": 0, "width": 0}
 
-
     # converts supervisely json format to coco format
     # only converts keypoints, size, and iscrowd
     # other values are constant
@@ -38,7 +37,7 @@ class json_obj:
 
         self.iscrowd = len(objects) > 1
 
-        #convert code
+        # convert code
         now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
         info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
@@ -69,20 +68,29 @@ class json_obj:
         imgs = data["images"]
         annotations = data["annotations"]
         unpaired = []
+        b = 0
         for img in imgs:
             self.keypoints.clear()
             id = img["id"]
-            kpoints = annotation["keypoints"]
-            count = 1
-            for i in kpoints:
-                if count % 3 != 0:
-                    self.keypoints.append(i)
-                count += 1
-            self.iscrowd = data["annotations"][0]["iscrowd"]
-            self.coco_create()
+            label = 1
+            for annotation in annotations:
+                fname = str(id) + "_" + str(label) + ".json"
+                if annotation["id"] == id:
+                    kpoints = annotation["keypoints"]
+                    count = 1
+                    for i in kpoints:
+                        if count % 3 != 0:
+                            self.keypoints.append(i)
+                        count += 1
+                    self.iscrowd = annotation["iscrowd"]
+                    self.coco_create(fname)
+                    label += 1
+            b += 1
+            if b == 20:
+                break
 
-    def coco_create(self):
-        #create code
+    def coco_create(self, out_name="sv.json"):
+        # create code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
         objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
