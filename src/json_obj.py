@@ -14,8 +14,12 @@ class json_obj:
         self.iscrowd = False
         self.dimensions = {"height": 0, "width": 0}
 
-    # loads the file and assigns fields to values based on supervisely style json file
-    def supervisely_load(self):
+
+    # converts supervisely json format to coco format
+    # only converts keypoints, size, and iscrowd
+    # other values are constant
+    def supervisely_to_coco(self, out_name="coco.json"):
+        # loads the file and assigns fields to values based on supervisely style json file
         with open(self.filepath) as f:
             data = json.load(f)
 
@@ -33,15 +37,7 @@ class json_obj:
 
         self.iscrowd = len(objects) > 1
 
-    # this function is for multiple supervisely jsons, for later
-    def supervisely_loadjson(self):
-        # Get input file names.
-        filenames = []
-
-    # converts supervisely json format to coco format
-    # only converts keypoints, size, and iscrowd
-    # other values are constant
-    def supervisely_to_coco(self, out_name="coco.json"):
+        #convert code
         now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
         info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
@@ -57,8 +53,11 @@ class json_obj:
         coco = open(out_name, "w")
         coco.write(json_string)
 
-    # loads the file and assigns fields to values based on coco-style json file
-    def coco_load(self):
+    # converts coco format to supervisely json format
+    # only converts keypoints and size
+    # other values are constant
+    def coco_to_supervisely(self, out_name="sv.json"):
+        # loads the file and assigns fields to values based on coco-style json file
         with open(self.filepath) as f:
             data = json.load(f)
 
@@ -75,10 +74,7 @@ class json_obj:
 
         self.iscrowd = data["annotations"][0]["iscrowd"]
 
-    # converts coco format to supervisely json format
-    # only converts keypoints and size
-    # other values are constant
-    def coco_to_supervisely(self, out_name="sv.json"):
+        #convert code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
         objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
