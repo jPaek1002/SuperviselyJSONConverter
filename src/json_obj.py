@@ -7,6 +7,7 @@ class json_obj:
     def __init__(self, filename=""):
         self.filename = filename
         self.filepath = os.path.join(os.path.dirname(os.getcwd()), 'data', filename)
+        self.num_points = 0
         self.keypoints = []
         self.keyids = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
                        'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
@@ -65,16 +66,23 @@ class json_obj:
         self.dimensions["height"] = dim["height"]
         self.dimensions["width"] = dim["width"]
 
-        kpoints = data["annotations"][0]["keypoints"]
-        count = 1
-        for i in kpoints:
-            if count % 3 != 0:
-                self.keypoints.append(i)
-            count += 1
+        imgs = data["images"]
+        annotations = data["annotations"]
+        unpaired = []
+        for img in imgs:
+            self.keypoints.clear()
+            id = img["id"]
+            kpoints = annotation["keypoints"]
+            count = 1
+            for i in kpoints:
+                if count % 3 != 0:
+                    self.keypoints.append(i)
+                count += 1
+            self.iscrowd = data["annotations"][0]["iscrowd"]
+            self.coco_create()
 
-        self.iscrowd = data["annotations"][0]["iscrowd"]
-
-        #convert code
+    def coco_create(self):
+        #create code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
         objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
