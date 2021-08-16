@@ -12,6 +12,7 @@ class json_obj:
         self.keyids = ['nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
                        'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
                        'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
+        self.image_id = ""
         self.iscrowd = False
         self.dimensions = {"height": 0, "width": 0}
 
@@ -71,36 +72,44 @@ class json_obj:
         b = 0
         for img in imgs:
             self.keypoints.clear()
-            id = img["id"]
-            label = 1
+            self.image_id = img["id"]
             for annotation in annotations:
-                fname = str(id) + "_" + str(label) + ".json"
-                if annotation["image_id"] == id:
+                fname = str(self.image_id) + ".json"
+                if annotation["image_id"] == self.image_id:
                     kpoints = annotation["keypoints"]
                     count = 1
+                    temp = []
                     for i in kpoints:
                         if count % 3 != 0:
-                            self.keypoints.append(i)
+                            temp.append(i)
                         count += 1
+                    self.keypoints.append(temp)
                     self.iscrowd = annotation["iscrowd"]
-                    self.coco_create(fname)
-                    label += 1
+            self.coco_create(fname)
             b += 1
-            if b == 20:
+            if b == 10:
                 break
 
     def coco_create(self, out_name="sv.json"):
         # create code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
-        objects = [{"id": 000000, "classId": 000000, "description": "", "geometryType": "graph",
+        objects = {"id": self.image_id, "classId": 000000, "description": "", "geometryType": "graph",
                     "labelerLogin": "MindsLabAI", "createdAt": now.strftime("%Y/%m/%d %H:%M:%S"),
-                    "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "Pose", "nodes": {}}]
-        nodes = objects[0]["nodes"]
-        for i in range(0, len(self.keypoints), 2):
-            nodes[str(i / 2)] = {"loc": [self.keypoints[i], self.keypoints[i + 1]]}
+                    "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "Pose", "nodes": {}}
+        i = 0
+        print(self.keypoints)
+        for points in self.keypoints:
+            nodes = objects["nodes"]
+            for j in range(0, len(points), 2):
+                # str(j / 2) is the id of the node
+                nodes[str(j / 2)] = {"loc": [points[j], points[j + 1]]}
+            i += 1
+            supervisely_json["objects"].append(objects)
 
-        supervisely_json["objects"] = objects
+            objects["nodes"].clear()
+
         json_string = json.dumps(supervisely_json)
         sv = open(out_name, "w")
         sv.write(json_string)
+        print()
