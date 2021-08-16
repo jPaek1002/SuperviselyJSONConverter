@@ -75,7 +75,7 @@ class json_obj:
             label = 1
             for annotation in annotations:
                 fname = str(id) + "_" + str(label) + ".json"
-                if annotation["id"] == id:
+                if annotation["image_id"] == id:
                     kpoints = annotation["keypoints"]
                     count = 1
                     for i in kpoints:
