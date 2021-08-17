@@ -62,6 +62,8 @@ class json_obj:
         with open(self.filepath) as f:
             data = json.load(f)
 
+        #create meta_json first
+        obj = data["categories"][0]
         dim = data["images"][0]
         self.dimensions["height"] = dim["height"]
         self.dimensions["width"] = dim["width"]
