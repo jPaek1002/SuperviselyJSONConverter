@@ -3,6 +3,6 @@ import json
 import os
 
 if __name__ == "__main__":
-    test = json_obj("person_keypoints_val2017.json")
-    test.coco_to_supervisely()
+    test = json_obj("sv.json")
+    test.supervisely_to_coco()
 

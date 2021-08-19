@@ -27,24 +27,27 @@ class json_obj:
         self.dimensions = data['size']
 
         objects = data["objects"]
+        for object in objects:
         # set the keypoints
-        nodes = objects[0]["nodes"]
+            nodes = object["nodes"]
 
-        # each node will have an id and a location, create keypoint list
-        for node in nodes:
-            keypoint = nodes[node]["loc"]
-            keypoint.append(1)
-            self.keypoints.extend(keypoint)
+            # each node will have an id and a location, create keypoint list
+            for node in nodes:
+                keypoint = nodes[node]["loc"]
+                keypoint.append(1)
+                self.keypoints.extend(keypoint)
 
-        self.iscrowd = len(objects) > 1
-
+            self.iscrowd = len(objects) > 1
+        #make sure to change this to an int
+        id = file_ext = os.path.splitext(self.filename)[0]
+        print(id)
         # convert code
         now = datetime.now()
         coco_json = {"info": {}, "licenses": [], "images": [], "annotations": [], "categories": []}
         info = {"description": "MindsLab DataSet", "url": "https://mindslab.ai/", "version": "1.0", "year": 2021,
                 "contributor": "MindsLabAI", "date_created": now.strftime("%Y/%m/%d")}
         img = [{"license": 1, "file_name": self.filename, "height": self.dimensions["height"],
-                "width": self.dimensions["width"], "date_captured": now.strftime("%Y/%m/%d %H:%M:%S"), "id": 000000}]
+                "width": self.dimensions["width"], "date_captured": now.strftime("%Y/%m/%d %H:%M:%S"), "id": id}]
         ann = [{"segmentation": [], "num_keypoints": 17, "area": 0, "iscrowd": self.iscrowd,
                 "keypoints": self.keypoints, "image_id": 000000, "bbox": [0, 0, 0, 0], "category_id": 1, "id": 201376}]
         coco_json["info"] = info
