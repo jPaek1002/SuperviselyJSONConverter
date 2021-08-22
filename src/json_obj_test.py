@@ -3,6 +3,7 @@ import json
 import os
 
 if __name__ == "__main__":
-    test = json_obj("sv.json")
-    test.supervisely_to_coco()
+    test = json_obj("397133.json")
+#    test.sv_get_nodes()
+    test.sv_to_coco()
 
