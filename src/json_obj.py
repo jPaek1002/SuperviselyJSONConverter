@@ -19,6 +19,7 @@ class json_obj:
 
     # converts supervisely json format to coco format
     # only converts keypoints, size, and iscrowd
+    # must call sv_get_nodes before
     # other values are constant
     def sv_to_coco(self, out_name="coco.json"):
         # loads the file and assigns fields to values based on supervisely style json file
@@ -105,7 +106,7 @@ class json_obj:
             b += 1
             if b == 1:
                 break
-
+    # creates sv json file. note: creates file in src
     def coco_create(self, out_name="sv.json"):
         # create code
         now = datetime.now()
@@ -130,6 +131,7 @@ class json_obj:
         sv.write(json_string)
         print()
 
+    # reads nodes of meta.json file to make sv json
     def sv_get_nodes(self, fname = "meta.json"):
         with open(fname) as f:
             data = json.load(f)
