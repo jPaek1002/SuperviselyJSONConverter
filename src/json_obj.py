@@ -13,7 +13,7 @@ class json_obj:
                        'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
                        'left_hip', 'right_hip', 'left_knee', 'right_knee', 'left_ankle', 'right_ankle']
         self.image_id = ""
-        self.iscrowd = False
+        self.iscrowd = []
         self.dimensions = {"height": 0, "width": 0}
         self.nodes = []
         self.bbox = []
@@ -116,7 +116,7 @@ class json_obj:
                             temp.append(i)
                         count += 1
                     self.keypoints.append(temp)
-                    self.iscrowd = annotation["iscrowd"]
+                    self.iscrowd.append(annotation["iscrowd"])
                     self.bbox.append(annotation["bbox"])
             self.coco_create(fname)
             b += 1
