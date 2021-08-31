@@ -224,7 +224,15 @@
                     }
                 }
             },
-            "id": 5909397,
+            "id": 6926590,
+            "hotkey": ""
+        },
+        {
+            "title": "bbox",
+            "shape": "rectangle",
+            "color": "#264887",
+            "geometry_config": {},
+            "id": 6926591,
             "hotkey": ""
         }
     ],

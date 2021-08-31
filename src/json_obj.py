@@ -37,18 +37,22 @@ class json_obj:
                 nodes = object["nodes"]
                 count = 0;
                 # each node will have an id and a location, create keypoint list
+                kpoints = []
                 for node in nodes:
                     keypoint = nodes[node]["loc"]
+
                     if keypoint == [0, 0]:
                         keypoint.append(0)
                     else:
                         keypoint.append(1)
                         count += 1
-                    self.keypoints.extend(keypoint)
-
+                    kpoints.extend(keypoint)
+                self.keypoints.append(kpoints)
                 self.iscrowd = len(objects) > 1
+                self.num_points.append(count)
             elif object["geometryType"] == "rectangle":
                 self.bbox.append(object["points"]["exterior"][0] + object["points"]["exterior"][1])
+                self.bbox = [self.bbox[0][0],self.bbox[0][1],self.bbox[0][2]-self.bbox[0][0],self.bbox[0][3]-self.bbox[0][1]]
         # make sure to change this to an int
         id = int(os.path.splitext(self.filename)[0])
         # convert code
@@ -72,9 +76,10 @@ class json_obj:
                                                 [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3], [1, 2], [1, 3],
                                                 [2, 4], [3, 5], [4, 6], [5, 7]]}
         i = 0
+        print(self.num_points)
         for kpoints in self.keypoints:
             temp = ann.copy()
-            temp["num_keypoints"] = i
+            temp["num_keypoints"] = self.num_points[i]
             temp["keypoints"] = kpoints
             coco_json["annotations"].append(temp)
             i += 1
@@ -90,8 +95,6 @@ class json_obj:
         with open(self.filepath) as f:
             data = json.load(f)
 
-        # create meta_json first
-        obj = data["categories"][0]
         dim = data["images"][0]
         self.dimensions["height"] = dim["height"]
         self.dimensions["width"] = dim["width"]
@@ -126,12 +129,12 @@ class json_obj:
         # create code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
-        objects = {"id": self.image_id, "classId": 3893107, "description": "", "geometryType": "graph",
+        objects = {"id": self.image_id, "classId": 6926590, "description": "", "geometryType": "graph",
                    "labelerLogin": "MindsLabAI", "createdAt": now.strftime("%Y/%m/%d %H:%M:%S"),
                    "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "person", "nodes": {}}
-        bbox = {"id": self.image_id, "classId": 6898429, "description": "", "geometryType": "rectangle",
+        bbox = {"id": self.image_id, "classId": 6926591, "description": "", "geometryType": "rectangle",
                 "labelerLogin": "MindsLabAI", "createdAt": now.strftime("%Y/%m/%d %H:%M:%S"),
-                "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "person",
+                "updatedAt": now.strftime("%Y/%m/%d %H:%M:%S"), "tags": [], "classTitle": "bbox",
                 "points": {"exterior": [], "interior": []}}
         i = 0
         for points in self.keypoints:
@@ -140,12 +143,9 @@ class json_obj:
             for j in range(0, int(len(points) / 2)):
                 nodes[self.nodes[j]] = {"loc": [points[j * 2], points[j * 2 + 1]]}
             box = bbox.copy()
-            box["points"]["exterior"] = [self.bbox[i][0],self.bbox[i][1]],[self.bbox[i][2],self.bbox[i][3]]
+            box["points"]["exterior"] = [self.bbox[i][0],self.bbox[i][1]],[self.bbox[i][0]+self.bbox[i][2],self.bbox[i][1]+self.bbox[i][3]]
             supervisely_json["objects"].append(box)
             supervisely_json["objects"].append(obj)
-            i += 1
-            if i == 1:
-                break
         json_string = json.dumps(supervisely_json)
         sv = open(out_name, "w")
         sv.write(json_string)
@@ -158,3 +158,4 @@ class json_obj:
         nodes = data['classes'][0]['geometry_config']['nodes']
         for key in nodes:
             self.nodes.append(key)
+        print(len(self.nodes))
