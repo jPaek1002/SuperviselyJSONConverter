@@ -122,6 +122,7 @@ class json_obj:
 
     # creates sv json file. note: creates file in src
     def coco_create(self, out_name="sv.json"):
+        out_name = os.path.join(os.path.dirname(os.getcwd()), 'data', out_name)
         # create code
         now = datetime.now()
         supervisely_json = {"description": "", "tags": [], "size": self.dimensions, "objects": []}
